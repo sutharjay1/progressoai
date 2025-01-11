@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  courses Course[]
+
+  @@index([email])
+  @@index([id])
+}
+
+model Course {
+  id          String      @id @default(cuid())
+  name        String
+  description String
+  type        CourseType  @default(Exam)
+  topic       String
+  level       CourseLevel @default(Easy)
+  category    String?
+  duration    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  flashcards Flashcard[]
+  quizzes    Quiz[]
+  chapters   Chapter[]
+
+  @@index([topic])
+  @@index([type])
+}
+
+model Chapter {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  duration    String
+  category    String
+  topic       String
+  level       String
+  orderIndex  Int
+  completed   Boolean @default(false)
+  
+  courseId    String
+  course      Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
+}
+
+model Flashcard {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
+}
+
+model Quiz {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
+}
+
+enum CourseType {
+  Exam
+  Job_Interview
+  Practice
+  Coding
+  Jee
+  Neet
+  Others
+}
+
+enum CourseLevel {
+  Easy
+  Moderate
+  Difficult
+}
