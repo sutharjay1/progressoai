@@ -25,7 +25,7 @@ const FlashCard: React.FC<FlashCardProps> = ({ data }) => {
           onClick={() => toggleFlip(card.id)}
         >
           <motion.div
-            className="relative h-full w-full"
+            className="relative h-full w-full rounded-xl border"
             style={{
               transformStyle: "preserve-3d",
             }}
@@ -33,7 +33,7 @@ const FlashCard: React.FC<FlashCardProps> = ({ data }) => {
             transition={{ duration: 0.5 }}
           >
             <Card
-              className="absolute inset-0"
+              className="absolute inset-0 rounded-xl border-none"
               style={{
                 backfaceVisibility: "hidden",
                 transform: "rotateY(0deg)",
@@ -59,6 +59,8 @@ const FlashCard: React.FC<FlashCardProps> = ({ data }) => {
                 </p>
               </CardContent>
             </Card>
+
+            <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-foreground/20" />
           </motion.div>
         </div>
       ))}
