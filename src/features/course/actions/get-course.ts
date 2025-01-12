@@ -12,6 +12,7 @@ export const getCourse = async (id: string) => {
         chapters: true,
         user: true,
         flashcards: true,
+        quiz: true,
       },
     });
   } catch (error) {

@@ -87,3 +87,40 @@ export async function generateFlashcards(course: Course) {
 
   return flashcardsData;
 }
+
+export async function generateQuiz(course: Course) {
+  const input = `Generate a detailed course tutorial in valid JSON format with the following details: 
+      Topic: ${course.topic}
+      Level: ${course.level}
+      Type: ${course.type}
+
+      Return 10 questions related to the course. Each question should have:
+      - "question": A question related to the course
+      - "answer": The correct answer to the question
+
+      The JSON structure should be only the questions array:    
+         
+          {
+            "question": "string",
+            "answer": "string",
+            "options": ["string", "string", "string", "string"]
+          }[]
+      }
+
+      Ensure all JSON properties are properly quoted and formatted. No markdown formatting or comments.
+
+      Please generate a set of questions for this course.
+      `;
+
+  const questions = await generateContent(input);
+
+  const questionsData = questions.map(
+    (question: { question: string; answer: string; options: string[] }) => ({
+      question: question.question,
+      answer: question.answer,
+      options: question.options,
+    }),
+  );
+
+  return questionsData;
+}

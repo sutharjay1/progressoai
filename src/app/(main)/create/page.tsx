@@ -108,7 +108,7 @@ export default function Create() {
     },
   });
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationKey: ["create-course"],
     mutationFn: async (data: TFormValues) => {
       return await generateCourseContent({
@@ -279,7 +279,7 @@ export default function Create() {
                     }
                   }}
                 >
-                  Continue
+                  {isPending ? "Generating..." : "Continue"}
                 </Button>
               </div>
             </div>
