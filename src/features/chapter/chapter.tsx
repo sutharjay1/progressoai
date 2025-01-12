@@ -33,7 +33,10 @@ interface VideoData {
 export const Chapter = ({ data, chapter }: Props) => {
   const { data: result, isLoading } = useQuery<VideoData[]>({
     queryKey: ["chapter-data", data.id],
-    queryFn: () => getRecommendation(data.topic),
+    queryFn: () =>
+      getRecommendation(
+        `${chapter.name} ${chapter.topic} ${chapter.level}  ${chapter.description}`,
+      ),
   });
 
   return (

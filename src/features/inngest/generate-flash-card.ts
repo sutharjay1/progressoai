@@ -94,7 +94,7 @@ export async function generateQuiz(course: Course) {
       Level: ${course.level}
       Type: ${course.type}
 
-      Return 10 questions related to the course. Each question should have:
+      Return 3 questions related to the course. Each question should have:
       - "question": A question related to the course
       - "answer": The correct answer to the question
 
