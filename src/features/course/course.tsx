@@ -1,11 +1,5 @@
 "use client";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +16,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Progress } from "@/components/ui/progress";
+import { H2 } from "@/components/ui/typography";
 import { getCourse } from "@/features/course/actions/get-course";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
@@ -37,9 +32,9 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { errorToast, successToast } from "../global/toast";
-import { useRouter } from "next/navigation";
 
 const generateFlashcards = async (courseId: string) => {
   const response = await fetch(`/api/inngest/flash-card?courseId=${courseId}`, {
@@ -48,6 +43,17 @@ const generateFlashcards = async (courseId: string) => {
 
   if (!response.ok) {
     throw new Error("Failed to generate flashcards");
+  }
+  return response.json();
+};
+
+const generateQuiz = async (courseId: string) => {
+  const response = await fetch(`/api/inngest/quiz?courseId=${courseId}`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to generate quiz");
   }
   return response.json();
 };
@@ -93,7 +99,7 @@ export function CoursePage({ id }: Props) {
 
   const { mutate: generate, isPending: isGenerating } = useMutation({
     mutationKey: ["generate-flashcards"],
-    mutationFn: generateFlashcards,
+    mutationFn: (courseId: string) => generateFlashcards(courseId),
     onSuccess: () => {
       successToast("Flashcards generated successfully");
     },
@@ -101,6 +107,17 @@ export function CoursePage({ id }: Props) {
       errorToast(error.message);
     },
   });
+  const { mutate: generateQuizMutate, isPending: isGeneratingQuiz } =
+    useMutation({
+      mutationKey: ["generate-quiz"],
+      mutationFn: (courseId: string) => generateQuiz(courseId),
+      onSuccess: () => {
+        successToast("Quiz generated successfully");
+      },
+      onError: (error: Error) => {
+        errorToast(error.message);
+      },
+    });
 
   const { mutate: generateVideoMutate, isPending: isGeneratingVideo } =
     useMutation({
@@ -233,50 +250,43 @@ export function CoursePage({ id }: Props) {
         </CardFooter>
       </Card>
 
-      <Card className="border-none px-0 shadow-none">
-        <CardHeader className="px-0">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Flash Cards</h3>
-
-            <Button asChild variant="outline">
+      <div className="grid grid-cols-1 gap-6 px-0 py-3 md:grid-cols-2">
+        <Card className="relative">
+          <CardContent className="pt-6">
+            <H2 className="text-2xl font-medium">Flash Card</H2>
+          </CardContent>
+          <CardFooter className="flex justify-between border-t bg-muted/50 py-4">
+            <Button
+              variant="outline"
+              onClick={() => generate(course.id)}
+              disabled={isGenerating}
+            >
+              {isGenerating ? "Generating..." : "Generate"}
+            </Button>
+            <Button asChild>
               <Link href={`/course/${course.id}/card`}>View All</Link>
             </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="px-0">
-          <div className="flex max-w-sm flex-col">
-            <div className="flex flex-col items-start justify-start">
-              <h3 className="text-lg font-semibold">Flashcards</h3>
-              <Button
-                size="sm"
-                onClick={() => generate(course.id)}
-                disabled={isGenerating}
-              >
-                {isGenerating ? "Generating..." : "Generate"}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
+          </CardFooter>
+        </Card>
 
-        <CardContent className="px-0 pt-6">
-          {course.flashcards.length > 0 ? (
-            <div className="space-y-4">
-              <Accordion type="single" collapsible>
-                {course.flashcards.map((flashcard) => (
-                  <AccordionItem value={flashcard.id} key={flashcard.id}>
-                    <AccordionTrigger>{flashcard.title}</AccordionTrigger>
-                    <AccordionContent>{flashcard.content}</AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </div>
-          ) : (
-            <div className="text-muted-foreground">
-              No flashcards found for this course.
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        <Card className="relative">
+          <CardContent className="pt-6">
+            <H2 className="text-2xl font-medium">Quiz</H2>
+          </CardContent>
+          <CardFooter className="flex justify-between border-t bg-muted/50 py-4">
+            <Button
+              variant="outline"
+              disabled={isGeneratingQuiz}
+              onClick={() => generateQuizMutate(course.id)}
+            >
+              Generate
+            </Button>
+            <Button asChild>
+              <Link href={`/course/${course.id}/quiz`}>Attempt</Link>
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
 
       <Card className="border-none px-0 shadow-none">
         <CardHeader className="px-0">
